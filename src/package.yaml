@@ -1,0 +1,97 @@
+name:                twitchbot
+version:             0.1.0.0
+github:              "githubuser/twitchbot"
+license:             Unlicense
+author:              "Author name here"
+maintainer:          "example@example.com"
+copyright:           "2020 Author name here"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/twitchbot#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+- bytestring
+- containers
+- extra
+- generic-lens
+- irc-client
+- lens
+- megaparsec
+- mtl
+- text
+- transformers
+
+default-extensions:
+- BlockArguments
+- DataKinds
+- DeriveAnyClass
+- DeriveFoldable
+- DeriveFunctor
+- DeriveGeneric
+- DeriveTraversable
+- DerivingVia
+- EmptyCase
+- FlexibleContexts
+- FlexibleInstances
+- GADTs
+- LambdaCase
+- MultiParamTypeClasses
+- NamedFieldPuns
+- NoImplicitPrelude
+- GeneralizedNewtypeDeriving
+- OverloadedStrings
+- ScopedTypeVariables
+- StrictData
+- TypeApplications
+- TypeFamilies
+- TypeOperators
+- TupleSections
+
+ghc-options:
+  - -Werror
+  - -fno-ignore-asserts
+  - -Wall
+  - -Wcompat
+  - -Widentities
+  - -Wincomplete-uni-patterns
+  - -Wincomplete-record-updates
+  - -Wpartial-fields
+  - -Wredundant-constraints
+  - -Wmissing-export-lists
+  - -Wmissing-deriving-strategies
+
+library:
+  source-dirs: src
+
+executables:
+  twitchbot:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - twitchbot
+
+tests:
+  twitchbot-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - twitchbot
