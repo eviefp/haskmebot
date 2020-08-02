@@ -6,22 +6,20 @@ import           Control.Lens
     ( (%~)
     , (.~)
     )
-import           Control.Monad.IO.Class
-    ( liftIO
-    )
 import           Data.ByteString
     ( ByteString
     )
 import           Data.Function
     ( (&)
     )
-import qualified Data.Text                 as T
 import           Data.Text
     ( Text
     )
+import           Interpreter               as I
 import qualified Network.IRC.Client        as IRC
 import qualified Network.IRC.Client.Events as IRCEvents
 import qualified Network.IRC.Client.Lens   as IRCLens
+import qualified Parser                    as P
 import           Prelude
 
 host
@@ -46,39 +44,35 @@ run = IRC.runClient conn cfg ()
   where
     conn =
         IRC.plainConnection host port
-        & IRCLens.logfunc .~ IRC.stdoutLogger
+        & IRCLens.logfunc .~ IRC.fileLogger "haskmebot.log"
         & IRCLens.password .~ pass
 
-    cfg  =
-        IRC.defaultInstanceConfig nick & IRCLens.handlers %~ (joinOurChannel :)
+    cfg  = IRC.defaultInstanceConfig nick & IRCLens.handlers %~ (allHandler :)
 
-data Event
+data BotEvent
     = Connected
-    | Message Text
+    | PerformAction P.Action
 
-joinOurChannel
+allHandler
     :: forall s
     .  IRC.EventHandler s
-joinOurChannel = IRC.EventHandler parse handle
+allHandler = IRC.EventHandler parse handle
   where
     parse
-        :: IRC.Event Text -> Maybe Event
+        :: IRC.Event Text -> Maybe BotEvent
     parse =
         \case
             IRCEvents.Event{ IRCEvents._message = IRCEvents.Numeric 1 _ }
                 -> Just Connected
             IRCEvents.Event{ IRCEvents._message =
                                  IRCEvents.Privmsg "#cvladfp" (Right text)
-                           } -> Just
-                $ Message text
+                           } -> PerformAction <$> P.parse text
             _ -> Nothing
 
     handle
-        :: IRC.Source Text -> Event -> IRC.IRC s ()
-    handle source =
+        :: IRC.Source Text -> BotEvent -> IRC.IRC s ()
+    handle _ =
         \case
-            Connected    -> IRC.send
+            Connected            -> IRC.send
                 $ IRCEvents.Join "#cvladfp"
-            Message text -> do
-                liftIO
-                    $ putStrLn ("<" <> show source <> ">: " <> T.unpack text)
+            PerformAction action -> I.eval action
