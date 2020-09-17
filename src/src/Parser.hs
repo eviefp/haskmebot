@@ -13,7 +13,7 @@ import qualified Text.Megaparsec.Char as C
 
 type Parser = M.Parsec () Text
 
-data Action = Command Text
+data Action = RunCommand Text
 
 parse
     :: Text -> Maybe Action
@@ -21,4 +21,4 @@ parse = M.parseMaybe innerParser
 
 innerParser
     :: Parser Action
-innerParser = Command . T.pack <$> (C.char '!' *> M.many C.asciiChar <* M.eof)
+innerParser = RunCommand . T.pack <$> (C.char '!' *> M.many C.asciiChar <* M.eof)

@@ -1,6 +1,6 @@
-name:                twitchbot
+name:                haskmebot
 version:             0.1.0.0
-github:              "githubuser/twitchbot"
+github:              "githubuser/haskmebot"
 license:             Unlicense
 author:              "Author name here"
 maintainer:          "example@example.com"
@@ -75,7 +75,7 @@ library:
   source-dirs: src
 
 executables:
-  twitchbot:
+  haskmebot:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -83,10 +83,10 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - twitchbot
+    - haskmebot
 
 tests:
-  twitchbot-test:
+  haskmebot-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
@@ -94,4 +94,4 @@ tests:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - twitchbot
+    - haskmebot
