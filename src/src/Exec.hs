@@ -20,7 +20,6 @@ import qualified Network.IRC.Client        as IRC
 import qualified Network.IRC.Client.Events as IRCEvents
 import qualified Network.IRC.Client.Lens   as IRCLens
 import qualified Parser                    as P
-import qualified Data.Map.Strict as M
 import           Prelude
 
 host
@@ -39,16 +38,9 @@ pass
     :: Maybe Text
 pass = Just "oauth:9yrc1aitdjpbwaqkmfikm5hqwwh54y"
 
-commands
-    :: I.State
-commands = M.fromList
-    [ ( "mydotfiles"
-      , "The dotfiles are over at https://github.com/vladciobanu/dotfiles"
-      )
-    ]
 run
     :: IO ()
-run = IRC.runClient conn cfg commands
+run = I.readDb >>= IRC.runClient conn cfg
   where
     conn =
         IRC.plainConnection host port
