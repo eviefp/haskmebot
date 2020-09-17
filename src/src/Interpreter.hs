@@ -16,13 +16,12 @@ import           Prelude
 commands
     :: [ ( Text, Text ) ]
 commands =
-    [ ( "dotfiles"
-          , "The dotfiles are over at https://github.com/vladciobanu/dotfiles"
-          )
+    [ ( "mydotfiles"
+      , "The dotfiles are over at https://github.com/vladciobanu/dotfiles"
+      )
     ]
 
-eval
-    :: P.Action -> IRC.IRC s ()
+eval :: P.Action -> IRC.IRC s ()
 eval (P.Command text) = maybe empty go (lookup text commands)
   where
     go
