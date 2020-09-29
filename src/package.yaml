@@ -33,6 +33,7 @@ dependencies:
 - text
 - transformers
 - wreq
+- yaml
 
 default-extensions:
 - BlockArguments
@@ -51,6 +52,7 @@ default-extensions:
 - MultiParamTypeClasses
 - NamedFieldPuns
 - NoImplicitPrelude
+- NumericUnderscores
 - GeneralizedNewtypeDeriving
 - OverloadedStrings
 - ScopedTypeVariables

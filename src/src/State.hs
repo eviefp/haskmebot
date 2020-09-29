@@ -1,35 +1,42 @@
 module State
     ( State (..)
-    , overrideCommands
-    , overrideUsers
+    , Notification (..)
+    , Second (..)
+    , override
     , load
     ) where
 
 import Prelude
 
 import User (Role)
+import Data.Aeson (ToJSON, FromJSON)
 import Data.Text (Text)
 import Data.Map.Strict (Map)
+import qualified Data.Yaml as Yaml
 import GHC.Generics (Generic)
+
+newtype Second = Second Int
+    deriving newtype Num
+    deriving newtype (ToJSON, FromJSON)
+
+data Notification = Notification
+    { message    :: Text
+    , recurrence :: Second
+    }
+    deriving stock (Generic)
+    deriving anyclass (ToJSON, FromJSON)
 
 data State = State
     { customCommands :: Map Text Text
     , userRoles      :: Map Text Role
+    , notifications  :: [Notification]
     }
     deriving stock (Generic)
+    deriving anyclass (ToJSON, FromJSON)
 
-overrideCommands :: Map Text Text -> IO ()
-overrideCommands = writeFile "database.show" . show
-
-overrideUsers :: Map Text Role -> IO ()
-overrideUsers = writeFile "users.show" . show
-
-readCommands :: IO (Map Text Text)
-readCommands = read <$> readFile "database.show"
-
-readUsers :: IO (Map Text Role)
-readUsers = read <$> readFile "users.show"
+override :: State -> IO ()
+override = Yaml.encodeFile "haskmebot.yaml"
 
 load :: IO State
-load = State <$> readCommands <*> readUsers
+load = Yaml.decodeFileThrow "haskmebot.yaml"
 

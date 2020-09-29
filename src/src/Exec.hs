@@ -16,6 +16,9 @@ import           Data.Text
     ( Text
     )
 import           Interpreter               as I
+import           Control.Monad (forever)
+import qualified Control.Monad.IO.Class    as IO
+import qualified Control.Concurrent        as Conc
 import qualified Network.IRC.Client        as IRC
 import qualified Network.IRC.Client.Events as IRCEvents
 import qualified Network.IRC.Client.Lens   as IRCLens
@@ -23,6 +26,8 @@ import qualified Parser                    as P
 import           Prelude
 import qualified Data.Text as T
 import qualified System.Environment as Env
+import Control.Lens (view)
+import qualified GHC.Conc as GhcConc
 
 import qualified State as S
 
@@ -32,16 +37,13 @@ host = "irc.chat.twitch.tv"
 port :: Int
 port = 6667
 
-nick
-    :: Text
+nick :: Text
 nick = "haskmebot"
 
-pass
-    :: IO (Maybe Text)
+pass :: IO (Maybe Text)
 pass = Just . T.pack <$> Env.getEnv "HASKMEBOT_PASS"
 
-run
-    :: IO ()
+run :: IO ()
 run = do
     password <- pass
     S.load >>= IRC.runClient (conn password) cfg
@@ -60,8 +62,7 @@ data BotEvent
 allHandler :: IRC.EventHandler S.State
 allHandler = IRC.EventHandler parse handle
   where
-    parse
-        :: IRC.Event Text -> Maybe BotEvent
+    parse :: IRC.Event Text -> Maybe BotEvent
     parse =
         \case
             IRCEvents.Event{ IRCEvents._message = IRCEvents.Numeric 1 _ }
@@ -74,6 +75,20 @@ allHandler = IRC.EventHandler parse handle
     handle :: IRC.Source Text -> BotEvent -> IRC.IRC S.State ()
     handle source =
         \case
-            Connected            -> IRC.send
-                $ IRCEvents.Join "#cvladfp"
+            Connected            -> do
+                state <- view IRC.userState
+                state' <- IO.liftIO $ GhcConc.readTVarIO state
+                let notifications = S.notifications state'
+
+                _ <- traverse (IRC.fork . doNotifications) notifications
+                IRC.send $ IRCEvents.Join "#cvladfp"
             PerformAction action -> I.eval source action
+
+    doNotifications :: S.Notification -> IRC.IRC S.State ()
+    doNotifications (S.Notification { S.message, S.recurrence }) =
+        let (S.Second seconds) = recurrence
+         in forever
+            $ IO.liftIO (Conc.threadDelay (seconds * 1_000_000))
+                *> I.eval
+                    (IRC.User "cvladfp")
+                    (P.SendMessage message)

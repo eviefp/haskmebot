@@ -72,12 +72,10 @@ eval source =
                                 )
                 T.writeTVar state commands
                 pure commands
-            liftIO
-                $ S.overrideCommands
-                    (newDb ^. F.field @"customCommands")
+            liftIO $ S.override newDb
+        P.SendMessage text -> go text
 
   where
-    go
-        :: Text -> IRC.IRC s ()
+    go :: Text -> IRC.IRC s ()
     go = IRC.send . Events.Privmsg "#cvladfp" . Right
 

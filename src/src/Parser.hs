@@ -19,6 +19,7 @@ data Action
     = RunCommand Text
     | AddCommand Text Text
     | SetStartTime Text
+    | SendMessage Text
 
 parse :: Text -> Maybe Action
 parse = M.parseMaybe innerParser
@@ -30,6 +31,7 @@ parseAdd :: Parser Action
 parseAdd = do
     void $ C.string "!command add "
     key <- M.many $ M.satisfy (\t -> t /= ' ')
+    _ <- C.char ' '
     value <- M.many C.asciiChar
     M.eof
     pure $ AddCommand (T.pack key) (T.pack value)

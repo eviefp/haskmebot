@@ -14,27 +14,34 @@
 - read token from environment
     - re-generate oauth token
 - !starttime <hour>:<minute>
+- user roles
+- recurrent messages in chat
+- make our config files reasonable
+- configure multiple repeated notification messages
 
 ## In-Progress
-- user roles
+
 
 ## PLAN
+
+
+
+- allow trusted users to update existing commands
+- save chat messages in the log as well
 
 haskmebot = Haskell Twitch Bot
 backend   = Purescript web server
 frontend  = Unreal Engine 4 3D scene(s)
 
-- notifications (online, uptime, follow, subs, bits)
-    - implement them in haskmebot
-    - have it send updates to the backend
-    - backend send them to the frontend
+- bot features
+    - some discord integration (live notification)
+    - show info (today, next show, etc.)
 
 - main scene
     - figure it out
 
-- bot features
-    - some discord integration (live notification)
-    - show info (today, next show, etc.)
+- notifications (online, uptime, follow, subs, bits)
+    - these need to be implemented in the backend
 
 - random ideas
     - we can generate animations using a Haskell DSL:
@@ -52,4 +59,3 @@ frontend  = Unreal Engine 4 3D scene(s)
 - API-level commands, like:
 would do some
 http post <url>/set-hour <hour>
-- use real data format instead of show/read
