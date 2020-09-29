@@ -21,13 +21,15 @@ import qualified Network.IRC.Client.Events as IRCEvents
 import qualified Network.IRC.Client.Lens   as IRCLens
 import qualified Parser                    as P
 import           Prelude
+import qualified Data.Text as T
+import qualified System.Environment as Env
 
-host
-    :: ByteString
+import qualified State as S
+
+host :: ByteString
 host = "irc.chat.twitch.tv"
 
-port
-    :: Int
+port :: Int
 port = 6667
 
 nick
@@ -35,17 +37,19 @@ nick
 nick = "haskmebot"
 
 pass
-    :: Maybe Text
-pass = Just "oauth:9yrc1aitdjpbwaqkmfikm5hqwwh54y"
+    :: IO (Maybe Text)
+pass = Just . T.pack <$> Env.getEnv "HASKMEBOT_PASS"
 
 run
     :: IO ()
-run = I.readDb >>= IRC.runClient conn cfg
+run = do
+    password <- pass
+    S.load >>= IRC.runClient (conn password) cfg
   where
-    conn =
+    conn password =
         IRC.plainConnection host port
         & IRCLens.logfunc .~ IRC.fileLogger "haskmebot.log"
-        & IRCLens.password .~ pass
+        & IRCLens.password .~ password
 
     cfg  = IRC.defaultInstanceConfig nick & IRCLens.handlers %~ (allHandler :)
 
@@ -53,7 +57,7 @@ data BotEvent
     = Connected
     | PerformAction P.Action
 
-allHandler :: IRC.EventHandler I.State
+allHandler :: IRC.EventHandler S.State
 allHandler = IRC.EventHandler parse handle
   where
     parse
@@ -67,9 +71,9 @@ allHandler = IRC.EventHandler parse handle
                            } -> PerformAction <$> P.parse text
             _ -> Nothing
 
-    handle :: IRC.Source Text -> BotEvent -> IRC.IRC I.State ()
-    handle _ =
+    handle :: IRC.Source Text -> BotEvent -> IRC.IRC S.State ()
+    handle source =
         \case
             Connected            -> IRC.send
                 $ IRCEvents.Join "#cvladfp"
-            PerformAction action -> I.eval action
+            PerformAction action -> I.eval source action

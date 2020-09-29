@@ -1,58 +1,55 @@
-# HaskmeBot TODO list
+# haskmebot
 
-Maybe we just create a DSL for commands so nothing is hard-coded.
-This means basically a DSL for essentially (IrcEvent -> m Action)
-This might also work with timers if timers is a thing handled by `m`.
+# Streaming software architecture
 
-```haskell
-data IrcEvent
-    = BotConnectedToServer -- join channel
-    | ChannelMessage Channel User Text
-    | PrivateMessage User Text -- maybe mods or other users want to interact somehow?
-    -- | Kick/Ban/whatever -- might want to do something?
+- Streamlabs OBS running the "scene" (UE4 overlay)
+- The "scene" does http requests to the "overlay" backend (Purescript)
+- This bot will send HTTP commands to the overlay in order to control the scene
 
-data Action
-    | Reply Destination Text
-```
+## Done
 
-```
-addCommand : IrcEvent -> [Text] ~> Action
-addCommand (ChanelMessage c u _) (name : rest) =
-  useSomeLanguagePrimitiveToStoreDataInAMap name (fold rest)
-  send $ Reply (Channel c) "Created command."
-```
+- `!command add <key> <text ...>`
+- `!key`
+- persisting commands across runs
+- read token from environment
+    - re-generate oauth token
+- !starttime <hour>:<minute>
 
-## Simple version of the language
-- untyped
-- not have constructors
+## In-Progress
+- user roles
 
-each file is a command instead of parsing multiple commands in a file
+## PLAN
 
-```
--- this file is 'addCommand.hmb'
--- in chat: !addCommand !bot Hi this bot lives at github://...
--- then rest = ["Hi", "this", "bot", ...]
-on Privmsg "#cvladfp" ("!addCommand":command:rest)
+haskmebot = Haskell Twitch Bot
+backend   = Purescript web server
+frontend  = Unreal Engine 4 3D scene(s)
 
-primStoreDataInAMap "commands" command (primFold rest)
-primSend "#cvladfp" "Created command."
+- notifications (online, uptime, follow, subs, bits)
+    - implement them in haskmebot
+    - have it send updates to the backend
+    - backend send them to the frontend
 
-done
+- main scene
+    - figure it out
 
------------------------------------
+- bot features
+    - some discord integration (live notification)
+    - show info (today, next show, etc.)
 
-on Privmsg "#cvladfp" (command:[])
+- random ideas
+    - we can generate animations using a Haskell DSL:
+        https://hackage.haskell.org/package/reanimate
+            So for example, we could have a command like
+            "!gen Hello world" and then we could generate
+            a video with dancing text or whatever, then
+            display it on stream.
 
-response = primGrabDataFromMap "commands" command
-prinSendMaybe #cvladfp" response
+            Or we could have the chat appear on screen
+            as animated text using this library.
 
-done
-```
 
-```json
-{ "data": {
-    "commands": { "!bot": "text..." }
-  }
-}
-```
 
+- API-level commands, like:
+would do some
+http post <url>/set-hour <hour>
+- use real data format instead of show/read

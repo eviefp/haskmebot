@@ -1,3 +1,5 @@
 .stack-work/
-twitchbot.cabal
+haskmebot.cabal
+src/secrets.nix
 *~
+

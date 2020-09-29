@@ -5,10 +5,12 @@
 - `!command add <key> <text ...>`
 - `!key`
 - persisting commands across runs
+- read token from environment
+    - re-generate oauth token
 
+## In-Progress
 
 ## PLAN
-- read token from environment
 - API-level commands, like:
 !starttime <hour>
 would do some

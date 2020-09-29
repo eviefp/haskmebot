@@ -18,13 +18,13 @@ type Parser = M.Parsec () Text
 data Action
     = RunCommand Text
     | AddCommand Text Text
+    | SetStartTime Text
 
-parse
-    :: Text -> Maybe Action
+parse :: Text -> Maybe Action
 parse = M.parseMaybe innerParser
 
 innerParser :: Parser Action
-innerParser = parseAdd <|> parseRun
+innerParser = parseAdd <|> parseStartTime <|> parseRun
 
 parseAdd :: Parser Action
 parseAdd = do
@@ -36,3 +36,8 @@ parseAdd = do
 
 parseRun :: Parser Action
 parseRun = RunCommand . T.pack <$> (C.char '!' *> M.many C.asciiChar <* M.eof)
+
+parseStartTime :: Parser Action
+parseStartTime =
+    SetStartTime . T.pack
+        <$> (C.string "!starttime " *> M.many C.asciiChar <* M.eof)

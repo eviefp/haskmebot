@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b98e3cb0d07b22ee91000ebc6079226d97043ef05513daaebca3ded3667b7cb4
+-- hash: 60acee584983cdc3b8d1d93a68b191108d52181a61c409dbf7afeb2563969b60
 
 name:           haskmebot
 version:        0.1.0.0
@@ -30,6 +30,8 @@ library
       Exec
       Interpreter
       Parser
+      State
+      User
   other-modules:
       Paths_haskmebot
   hs-source-dirs:
@@ -37,7 +39,8 @@ library
   default-extensions: BlockArguments DataKinds DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable DerivingVia EmptyCase FlexibleContexts FlexibleInstances GADTs LambdaCase MultiParamTypeClasses NamedFieldPuns NoImplicitPrelude GeneralizedNewtypeDeriving OverloadedStrings ScopedTypeVariables StrictData TypeApplications TypeFamilies TypeOperators TupleSections
   ghc-options: -Werror -fno-ignore-asserts -Wall -Wcompat -Widentities -Wincomplete-uni-patterns -Wincomplete-record-updates -Wpartial-fields -Wredundant-constraints -Wmissing-export-lists -Wmissing-deriving-strategies
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , bytestring
     , containers
     , extra
@@ -48,6 +51,7 @@ library
     , mtl
     , text
     , transformers
+    , wreq
   default-language: Haskell2010
 
 executable haskmebot
@@ -59,7 +63,8 @@ executable haskmebot
   default-extensions: BlockArguments DataKinds DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable DerivingVia EmptyCase FlexibleContexts FlexibleInstances GADTs LambdaCase MultiParamTypeClasses NamedFieldPuns NoImplicitPrelude GeneralizedNewtypeDeriving OverloadedStrings ScopedTypeVariables StrictData TypeApplications TypeFamilies TypeOperators TupleSections
   ghc-options: -Werror -fno-ignore-asserts -Wall -Wcompat -Widentities -Wincomplete-uni-patterns -Wincomplete-record-updates -Wpartial-fields -Wredundant-constraints -Wmissing-export-lists -Wmissing-deriving-strategies -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , bytestring
     , containers
     , extra
@@ -71,6 +76,7 @@ executable haskmebot
     , mtl
     , text
     , transformers
+    , wreq
   default-language: Haskell2010
 
 test-suite haskmebot-test
@@ -83,7 +89,8 @@ test-suite haskmebot-test
   default-extensions: BlockArguments DataKinds DeriveAnyClass DeriveFoldable DeriveFunctor DeriveGeneric DeriveTraversable DerivingVia EmptyCase FlexibleContexts FlexibleInstances GADTs LambdaCase MultiParamTypeClasses NamedFieldPuns NoImplicitPrelude GeneralizedNewtypeDeriving OverloadedStrings ScopedTypeVariables StrictData TypeApplications TypeFamilies TypeOperators TupleSections
   ghc-options: -Werror -fno-ignore-asserts -Wall -Wcompat -Widentities -Wincomplete-uni-patterns -Wincomplete-record-updates -Wpartial-fields -Wredundant-constraints -Wmissing-export-lists -Wmissing-deriving-strategies -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , bytestring
     , containers
     , extra
@@ -95,4 +102,5 @@ test-suite haskmebot-test
     , mtl
     , text
     , transformers
+    , wreq
   default-language: Haskell2010
