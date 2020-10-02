@@ -2,30 +2,35 @@ module Exec
     ( run
     ) where
 
-import qualified Control.Concurrent        as Conc
+import qualified Control.Concurrent           as Conc
 import           Control.Lens
-    (view, (%~), (.~))
+    (view, (%~), (.~), (^.))
 import           Control.Monad
     (forever)
-import qualified Control.Monad.IO.Class    as IO
+import qualified Control.Monad.IO.Class       as IO
 import           Data.ByteString
     (ByteString)
 import           Data.Foldable
     (traverse_)
 import           Data.Function
     ((&))
+import           Data.Generics.Product.Fields as F
+import qualified Data.Map.Strict              as M
+import           Data.Maybe
+    (fromMaybe)
 import           Data.Text
     (Text)
-import qualified Data.Text                 as T
-import qualified GHC.Conc                  as GhcConc
-import           Interpreter               as I
-import qualified Network.IRC.Client        as IRC
-import qualified Network.IRC.Client.Events as IRCEvents
-import qualified Network.IRC.Client.Lens   as IRCLens
-import qualified Parser                    as P
+import qualified Data.Text                    as T
+import qualified GHC.Conc                     as GhcConc
+import           Interpreter                  as I
+import qualified Network.IRC.Client           as IRC
+import qualified Network.IRC.Client.Events    as IRCEvents
+import qualified Network.IRC.Client.Lens      as IRCLens
+import qualified Parser                       as P
 import           Prelude
-import qualified State                     as S
-import qualified System.Environment        as Env
+import qualified State                        as S
+import qualified System.Environment           as Env
+import qualified User                         as U
 
 -- Things to move to config:
 --  host, port, nick, env variable, logfile
@@ -85,7 +90,9 @@ allHandler = IRC.EventHandler parse handle
                 let notifications = S.notifications state'
 
                 traverse_ (IRC.fork . doNotifications) notifications
-            PerformAction action -> I.eval source action
+            PerformAction action -> do
+                role <- getRole source
+                I.eval source role action
 
     doNotifications :: S.Notification -> IRC.IRC S.State ()
     doNotifications S.Notification { S.message, S.recurrence } =
@@ -94,4 +101,23 @@ allHandler = IRC.EventHandler parse handle
             $ IO.liftIO (Conc.threadDelay (seconds * 1_000_000))
                 *> I.eval
                     (IRC.User "")
+                    U.Regular
                     (P.SendMessage message)
+
+toUsername :: IRC.Source Text -> Maybe Text
+toUsername = \case
+    IRC.User nickname -> Just nickname
+    IRC.Channel _ nickname -> Just nickname
+    IRC.Server _ -> Nothing
+
+getRole' :: Text -> IRC.IRC S.State U.Role
+getRole' nickname = do
+    state <- view IRC.userState
+    state' <- IO.liftIO $ GhcConc.readTVarIO state
+    let roles = state' ^. F.field @"userRoles"
+    pure $ fromMaybe U.Regular (M.lookup nickname roles)
+
+getRole :: IRC.Source Text -> IRC.IRC S.State U.Role
+getRole s =
+    maybe (pure U.Regular) getRole' (toUsername s)
+

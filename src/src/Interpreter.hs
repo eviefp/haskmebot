@@ -11,8 +11,6 @@ import           Data.Function
     ((&))
 import           Data.Generics.Product.Fields as F
 import qualified Data.Map.Strict              as M
-import           Data.Maybe
-    (fromMaybe)
 import           Data.Text
     (Text)
 import qualified GHC.Conc                     as T
@@ -25,28 +23,11 @@ import           Prelude
 import           State as S
 import qualified User  as U
 
-toUsername :: IRC.Source Text -> Maybe Text
-toUsername = \case
-    IRC.User nickname -> Just nickname
-    IRC.Channel _ nickname -> Just nickname
-    IRC.Server _ -> Nothing
-
-getRole' :: Text -> IRC.IRC S.State U.Role
-getRole' nickname = do
-    state <- view IRC.userState
-    state' <- liftIO $ T.readTVarIO state
-    let roles = state' ^. F.field @"userRoles"
-    pure $ fromMaybe U.Regular (M.lookup nickname roles)
-
-getRole :: IRC.Source Text -> IRC.IRC S.State U.Role
-getRole s =
-    maybe (pure U.Regular) getRole' (toUsername s)
-
-eval :: IRC.Source Text -> P.Action -> IRC.IRC S.State ()
-eval source =
+eval :: IRC.Source Text -> U.Role -> P.Action -> IRC.IRC S.State ()
+eval _ role =
     \case
         P.SetStartTime t -> do
-            getRole source >>= \case
+            case role of
                 U.Regular -> go "You do not have the right to change the stream start time."
                 U.Trusted -> do
                     res <-
@@ -61,7 +42,6 @@ eval source =
             let commands = state' ^. F.field @"customCommands"
             maybe (pure ()) go (M.lookup text commands)
         P.SetCommand key value -> do
-            role <- getRole source
             state <- view IRC.userState
             newDb <- liftIO $ T.atomically do
                 state' <- T.readTVar state

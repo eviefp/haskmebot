@@ -18,9 +18,9 @@
 - recurrent messages in chat
 - make our config files reasonable
 - configure multiple repeated notification messages
+- allow trusted users to update existing commands
 
 ## In-Progress
-- allow trusted users to update existing commands
 
 
 ## PLAN
