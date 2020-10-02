@@ -10,6 +10,8 @@ import           Control.Monad
 import qualified Control.Monad.IO.Class    as IO
 import           Data.ByteString
     (ByteString)
+import           Data.Foldable
+    (traverse_)
 import           Data.Function
     ((&))
 import           Data.Text
@@ -22,12 +24,12 @@ import qualified Network.IRC.Client.Events as IRCEvents
 import qualified Network.IRC.Client.Lens   as IRCLens
 import qualified Parser                    as P
 import           Prelude
+import qualified State                     as S
 import qualified System.Environment        as Env
 
-import           Data.Foldable
-    (traverse_)
-import qualified State         as S
-
+-- Things to move to config:
+--  host, port, nick, env variable, logfile
+--
 host :: ByteString
 host = "irc.chat.twitch.tv"
 
@@ -40,6 +42,9 @@ nick = "haskmebot"
 pass :: IO (Maybe Text)
 pass = Just . T.pack <$> Env.getEnv "HASKMEBOT_PASS"
 
+-- What we're doing here:
+--   1. Grabbing the IRC OAUTH token from the environment
+--   2. Running the IRC client
 run :: IO ()
 run = do
     password <- pass
@@ -50,7 +55,9 @@ run = do
         & IRCLens.logfunc .~ IRC.fileLogger "haskmebot.log"
         & IRCLens.password .~ password
 
-    cfg  = IRC.defaultInstanceConfig nick & IRCLens.handlers %~ (allHandler :)
+    cfg  = IRC.defaultInstanceConfig nick
+            & IRCLens.handlers %~ (\xs -> allHandler : IRC.joinOnWelcome : xs)
+            & IRCLens.channels .~ [ "#cvladfp" ]
 
 data BotEvent
     = Connected
@@ -78,7 +85,6 @@ allHandler = IRC.EventHandler parse handle
                 let notifications = S.notifications state'
 
                 traverse_ (IRC.fork . doNotifications) notifications
-                IRC.send $ IRCEvents.Join "#cvladfp"
             PerformAction action -> I.eval source action
 
     doNotifications :: S.Notification -> IRC.IRC S.State ()
@@ -87,5 +93,5 @@ allHandler = IRC.EventHandler parse handle
          in forever
             $ IO.liftIO (Conc.threadDelay (seconds * 1_000_000))
                 *> I.eval
-                    (IRC.User "cvladfp")
+                    (IRC.User "")
                     (P.SendMessage message)

@@ -18,7 +18,7 @@ type Parser = M.Parsec () Text
 
 data Action
     = RunCommand Text
-    | AddCommand Text Text
+    | SetCommand Text Text
     | SetStartTime Text
     | SendMessage Text
 
@@ -30,12 +30,12 @@ innerParser = parseAdd <|> parseStartTime <|> parseRun
 
 parseAdd :: Parser Action
 parseAdd = do
-    void $ C.string "!command add "
+    void $ C.string "!command set "
     key <- M.many $ M.satisfy (/= ' ')
     _ <- C.char ' '
     value <- M.many C.asciiChar
     M.eof
-    pure $ AddCommand (T.pack key) (T.pack value)
+    pure $ SetCommand (T.pack key) (T.pack value)
 
 parseRun :: Parser Action
 parseRun = RunCommand . T.pack <$> (C.char '!' *> M.many C.asciiChar <* M.eof)

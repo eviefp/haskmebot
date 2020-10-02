@@ -22,8 +22,8 @@ import           Network.Wreq                 as Wreq
 import qualified Parser                       as P
 import           Prelude
 
-import State as S
-import User  as U
+import           State as S
+import qualified User  as U
 
 toUsername :: IRC.Source Text -> Maybe Text
 toUsername = \case
@@ -36,19 +36,19 @@ getRole' nickname = do
     state <- view IRC.userState
     state' <- liftIO $ T.readTVarIO state
     let roles = state' ^. F.field @"userRoles"
-    pure $ fromMaybe Regular (M.lookup nickname roles)
+    pure $ fromMaybe U.Regular (M.lookup nickname roles)
 
 getRole :: IRC.Source Text -> IRC.IRC S.State U.Role
 getRole s =
-    maybe (pure Regular) getRole' (toUsername s)
+    maybe (pure U.Regular) getRole' (toUsername s)
 
 eval :: IRC.Source Text -> P.Action -> IRC.IRC S.State ()
 eval source =
     \case
         P.SetStartTime t -> do
             getRole source >>= \case
-                Regular -> go "You do not have the right to change the stream start time."
-                Trusted -> do
+                U.Regular -> go "You do not have the right to change the stream start time."
+                U.Trusted -> do
                     res <-
                         liftIO
                             $ Wreq.post "http://localhost:3000/start-time" (Aeson.toJSON t)
@@ -60,7 +60,8 @@ eval source =
             state' <- liftIO $ T.readTVarIO state
             let commands = state' ^. F.field @"customCommands"
             maybe (pure ()) go (M.lookup text commands)
-        P.AddCommand key value -> do
+        P.SetCommand key value -> do
+            role <- getRole source
             state <- view IRC.userState
             newDb <- liftIO $ T.atomically do
                 state' <- T.readTVar state
@@ -69,7 +70,7 @@ eval source =
                         state'
                             & F.field @"customCommands"
                             %~ M.alter
-                                    (maybe (Just value) Just)
+                                    (addOrUpdate role value)
                                     key
                 T.writeTVar state commands
                 pure commands
@@ -79,4 +80,7 @@ eval source =
   where
     go :: Text -> IRC.IRC s ()
     go = IRC.send . Events.Privmsg "#cvladfp" . Right
+
+    addOrUpdate :: U.Role -> Text -> Maybe Text -> Maybe Text
+    addOrUpdate r value = maybe (Just value) (U.role Just (const (Just value)) r)
 

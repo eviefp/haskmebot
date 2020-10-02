@@ -20,13 +20,13 @@
 - configure multiple repeated notification messages
 
 ## In-Progress
+- allow trusted users to update existing commands
 
 
 ## PLAN
 
 
 
-- allow trusted users to update existing commands
 - save chat messages in the log as well
 
 haskmebot = Haskell Twitch Bot

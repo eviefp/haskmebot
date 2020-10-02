@@ -1,6 +1,7 @@
 module User
     ( Role(..)
     , User (..)
+    , role
     ) where
 
 import Prelude
@@ -14,8 +15,8 @@ import GHC.Generics
 
 data User
   = User
-      { name :: Text
-      , role :: Role
+      { _name :: Text
+      , _role :: Role
       }
   deriving stock (Generic)
   deriving anyclass (ToJSON, FromJSON)
@@ -25,3 +26,7 @@ data Role = Regular | Trusted
     deriving stock (Generic)
     deriving anyclass (ToJSON, FromJSON)
 
+role :: forall a. a -> a -> Role -> a
+role regular trusted = \case
+    Regular -> regular
+    Trusted -> trusted
