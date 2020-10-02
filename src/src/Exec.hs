@@ -2,34 +2,31 @@ module Exec
     ( run
     ) where
 
-import           Control.Lens
-    ( (%~)
-    , (.~)
-    )
-import           Data.ByteString
-    ( ByteString
-    )
-import           Data.Function
-    ( (&)
-    )
-import           Data.Text
-    ( Text
-    )
-import           Interpreter               as I
-import           Control.Monad (forever)
-import qualified Control.Monad.IO.Class    as IO
 import qualified Control.Concurrent        as Conc
+import           Control.Lens
+    (view, (%~), (.~))
+import           Control.Monad
+    (forever)
+import qualified Control.Monad.IO.Class    as IO
+import           Data.ByteString
+    (ByteString)
+import           Data.Function
+    ((&))
+import           Data.Text
+    (Text)
+import qualified Data.Text                 as T
+import qualified GHC.Conc                  as GhcConc
+import           Interpreter               as I
 import qualified Network.IRC.Client        as IRC
 import qualified Network.IRC.Client.Events as IRCEvents
 import qualified Network.IRC.Client.Lens   as IRCLens
 import qualified Parser                    as P
 import           Prelude
-import qualified Data.Text as T
-import qualified System.Environment as Env
-import Control.Lens (view)
-import qualified GHC.Conc as GhcConc
+import qualified System.Environment        as Env
 
-import qualified State as S
+import           Data.Foldable
+    (traverse_)
+import qualified State         as S
 
 host :: ByteString
 host = "irc.chat.twitch.tv"
@@ -80,12 +77,12 @@ allHandler = IRC.EventHandler parse handle
                 state' <- IO.liftIO $ GhcConc.readTVarIO state
                 let notifications = S.notifications state'
 
-                _ <- traverse (IRC.fork . doNotifications) notifications
+                traverse_ (IRC.fork . doNotifications) notifications
                 IRC.send $ IRCEvents.Join "#cvladfp"
             PerformAction action -> I.eval source action
 
     doNotifications :: S.Notification -> IRC.IRC S.State ()
-    doNotifications (S.Notification { S.message, S.recurrence }) =
+    doNotifications S.Notification { S.message, S.recurrence } =
         let (S.Second seconds) = recurrence
          in forever
             $ IO.liftIO (Conc.threadDelay (seconds * 1_000_000))

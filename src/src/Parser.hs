@@ -3,15 +3,16 @@ module Parser
     , Action(..)
     ) where
 
-import Control.Applicative ((<|>))
-import qualified Data.Text            as T
+import           Control.Applicative
+    ((<|>))
+import           Data.Functor
+    (void)
 import           Data.Text
-    ( Text
-    )
+    (Text)
+import qualified Data.Text            as T
 import           Prelude
 import qualified Text.Megaparsec      as M
 import qualified Text.Megaparsec.Char as C
-import Data.Functor (void)
 
 type Parser = M.Parsec () Text
 
@@ -30,7 +31,7 @@ innerParser = parseAdd <|> parseStartTime <|> parseRun
 parseAdd :: Parser Action
 parseAdd = do
     void $ C.string "!command add "
-    key <- M.many $ M.satisfy (\t -> t /= ' ')
+    key <- M.many $ M.satisfy (/= ' ')
     _ <- C.char ' '
     value <- M.many C.asciiChar
     M.eof

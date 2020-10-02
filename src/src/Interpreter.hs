@@ -2,25 +2,28 @@ module Interpreter
     ( eval
     ) where
 
-import Data.Maybe (fromMaybe)
-import Data.Function ((&))
-import Data.Generics.Product.Fields as F
-import Data.Aeson as Aeson
+import           Control.Lens
+    (view, (%~), (^.))
+import           Control.Monad.IO.Class
+    (MonadIO (liftIO))
+import           Data.Aeson                   as Aeson
+import           Data.Function
+    ((&))
+import           Data.Generics.Product.Fields as F
+import qualified Data.Map.Strict              as M
+import           Data.Maybe
+    (fromMaybe)
 import           Data.Text
-    ( Text
-    )
-import qualified Network.IRC.Client        as IRC
-import qualified Network.IRC.Client.Events as Events
-import qualified Parser                    as P
+    (Text)
+import qualified GHC.Conc                     as T
+import qualified Network.IRC.Client           as IRC
+import qualified Network.IRC.Client.Events    as Events
+import           Network.Wreq                 as Wreq
+import qualified Parser                       as P
 import           Prelude
-import qualified GHC.Conc as T
-import Control.Lens (view, (^.), (%~))
-import qualified Data.Map.Strict as M
-import Control.Monad.IO.Class (MonadIO(liftIO))
-import Network.Wreq as Wreq
 
 import State as S
-import User as U
+import User  as U
 
 toUsername :: IRC.Source Text -> Maybe Text
 toUsername = \case
@@ -37,8 +40,7 @@ getRole' nickname = do
 
 getRole :: IRC.Source Text -> IRC.IRC S.State U.Role
 getRole s =
-    fromMaybe (pure Regular)
-        $ getRole' <$> toUsername s
+    maybe (pure Regular) getRole' (toUsername s)
 
 eval :: IRC.Source Text -> P.Action -> IRC.IRC S.State ()
 eval source =
@@ -66,10 +68,9 @@ eval source =
                     commands =
                         state'
                             & F.field @"customCommands"
-                            %~ (M.alter
+                            %~ M.alter
                                     (maybe (Just value) Just)
                                     key
-                                )
                 T.writeTVar state commands
                 pure commands
             liftIO $ S.override newDb

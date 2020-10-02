@@ -4,6 +4,8 @@ customCommands:
   gillchristian: You should definitely follow @gillchristian on twitch https://twitch.tv/gillchristian
   agentultra: Follow the Bob Ross of FP streaming, @agentultra on twitch https://twitch.tv/agentultra
   dotfiles: The dotfiles are over at https://github.com/vladciobanu/dotfiles
+  pointed: Working on a port of smash (https://hackage.haskell.org/package/smash-0.1.1.0)
+    to purescript (https://github.com/vladciobanu/purescript-pointed).
   youtube: Watch Podcast Sundays, Teaching Thursdays, and other stream highlights
     on https://www.youtube.com/channel/UCDvH0v4GelMrYleTKyFBbvQ/
   twitter: Follow me on twitter to get notified when I go live. I also (re)tweet FP-related
