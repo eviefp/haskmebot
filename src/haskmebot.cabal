@@ -4,7 +4,7 @@ cabal-version: 2.2
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 391426d0c05e7bcbad9879c42ecf97e8196e676f5765b644acd855d82242d7df
+-- hash: d81a13bced0f65b51695e6d0e1fe5894c594e531cbec2123241cec1b64601919
 
 name:           haskmebot
 version:        0.1.0.0
@@ -31,6 +31,7 @@ library
       Interpreter
       Parser
       State
+      TwitchHooks
       User
   other-modules:
       Paths_haskmebot
@@ -49,6 +50,7 @@ library
     , lens
     , megaparsec
     , mtl
+    , scotty
     , text
     , transformers
     , wreq
@@ -75,6 +77,7 @@ executable haskmebot
     , lens
     , megaparsec
     , mtl
+    , scotty
     , text
     , transformers
     , wreq
@@ -102,6 +105,7 @@ test-suite haskmebot-test
     , lens
     , megaparsec
     , mtl
+    , scotty
     , text
     , transformers
     , wreq

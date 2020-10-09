@@ -3,17 +3,20 @@ customCommands:
     mostly Haskell, but lots of other fun stuff too!
   gillchristian: You should definitely follow @gillchristian on twitch https://twitch.tv/gillchristian
   agentultra: Follow the Bob Ross of FP streaming, @agentultra on twitch https://twitch.tv/agentultra
+  Vince: what's up
   dotfiles: The dotfiles are over at https://github.com/vladciobanu/dotfiles
-  pointed: Working on a port of smash (https://hackage.haskell.org/package/smash-0.1.1.0)
+  pointed: Working on a port of Emily Pillmore's smash (https://hackage.haskell.org/package/smash-0.1.1.0)
     to purescript (https://github.com/vladciobanu/purescript-pointed).
   youtube: Watch Podcast Sundays, Teaching Thursdays, and other stream highlights
     on https://www.youtube.com/channel/UCDvH0v4GelMrYleTKyFBbvQ/
   twitter: Follow me on twitter to get notified when I go live. I also (re)tweet FP-related
     content https://twitter.com/cvlad
-  foo: baz
-  discord: Join the discord at https://discord.gg/DXCfnaZ
+  k: You should definitely follow and watch @kerckhove_ts at https://twitch.tv/kerckhove_ts
+  discord: Join discord at https://discord.gg/MuPrPs3 !!
+  jappie: Follow jappiejappie on https://twitch.tv/jappiejappie for more Haskell content!
 userRoles:
   cvladfp: Trusted
 notifications:
-- recurrence: 600
-  message: Starting 5th of October, all streams will start at 1pm GMT.
+- recurrence: 1200
+  message: Follow the channel to get go-live notifications. Join the FP Streamers
+    discord server to chat when offline https://discord.gg/MuPrPs3

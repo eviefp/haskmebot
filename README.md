@@ -22,6 +22,30 @@
 
 ## In-Progress
 
+Now:
+- [x] Write a simple hello world endpoint
+- [x] Write the code to get a twitch webook in
+
+Next time:
+- [ ] Deploy to AWS (nixos machine and use nix-copy-closure)
+- [ ] Test and implement more hooks
+
+
+We want to receive notifications when:
+- users follow
+- users subscribe
+- users donate bits
+- streamer starts or stops their stream
+
+We need to use webhooks API in order to also be able to get follows.
+https://dev.twitch.tv/docs/api/webhooks-guide
+
+- twitch api: follows
+- twitch api: subs
+- twitch api: bits
+- twitch api: go-live notification
+
+
 
 ## PLAN
 

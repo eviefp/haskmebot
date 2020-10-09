@@ -21,6 +21,7 @@ import           Data.Maybe
 import           Data.Text
     (Text)
 import qualified Data.Text                    as T
+import qualified Data.Text.Encoding           as Text
 import qualified GHC.Conc                     as GhcConc
 import           Interpreter                  as I
 import qualified Network.IRC.Client           as IRC
@@ -30,6 +31,7 @@ import qualified Parser                       as P
 import           Prelude
 import qualified State                        as S
 import qualified System.Environment           as Env
+import qualified TwitchHooks                  as TwitchHooks
 import qualified User                         as U
 
 -- Things to move to config:
@@ -53,6 +55,7 @@ pass = Just . T.pack <$> Env.getEnv "HASKMEBOT_PASS"
 run :: IO ()
 run = do
     password <- pass
+    _ <- Conc.forkIO (TwitchHooks.run (maybe "" Text.encodeUtf8 password))
     S.load >>= IRC.runClient (conn password) cfg
   where
     conn password =
